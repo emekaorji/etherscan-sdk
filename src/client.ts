@@ -48,6 +48,12 @@ class Account {
     this.etherScan = etherScan;
   }
 
+  /**
+   * Get Ether Balance for a Single or Multiple Address in a Single Call
+   * @param {string} address the addresses to check for balance
+   * @param {string} options.tag the string pre-defined block parameter, either `earliest`, `pending` or `latest`
+   * @returns Returns the Ether balance of the given address(es).
+   */
   public async getBalance(
     address: string | string[],
     { tag }: GetBalanceOptions = {}
