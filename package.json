@@ -1,0 +1,16 @@
+{
+  "name": "my-sdk",
+  "version": "1.0.0",
+  "description": "A sample TypeScript SDK",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.8",
+    "typescript": "^5.5.2"
+  }
+}
