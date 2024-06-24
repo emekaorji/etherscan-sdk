@@ -35,7 +35,7 @@ interface EtherscanParams {
 }
 
 interface GetBalanceOptions extends Pick<EtherscanParams, 'tag'> {}
-interface GetNormalTransactionsOptions
+interface GetTransactionsByAddressOptions
   extends Pick<
     EtherscanParams,
     'startblock' | 'endblock' | 'page' | 'offset' | 'sort'
@@ -93,10 +93,75 @@ class Account {
    */
   public async getNormalTransactions(
     address: string,
-    { ...options }: GetNormalTransactionsOptions = {}
+    { ...options }: GetTransactionsByAddressOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'txlist', {
       address,
+      ...options,
+    });
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+  /**
+   * Get a list of 'Internal' Transactions by Address
+   * @param {string} address the addresses to check for balance
+   * @param {number} options.startblock block number to start searching for transactions
+   * @param {number} options.endblock block number to stop searching for transactions
+   * @param {number} options.page page number, if pagination is enabled
+   * @param {number} options.offset the number of transactions displayed per page
+   * @param {string} options.sort the sorting preference, use `asc` to sort by ascending and `desc` to sort by descendin. Tip: Specify a smaller startblock and endblock range for faster search results.
+   * @returns Returns the list of transactions performed by an address, with optional pagination.
+   */
+  public async getInternalTransactions(
+    address: string,
+    { ...options }: GetTransactionsByAddressOptions = {}
+  ): Promise<BalanceResponse> {
+    const url = this.etherScan.constructUrl('account', 'txlistinternal', {
+      address,
+      ...options,
+    });
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+  /**
+   * Get 'Internal Transactions' by Transaction Hash
+   * @param {string} txhash the string representing the transaction hash to check for internal transactions
+   * @returns Returns the list of internal transactions performed within a transaction.
+   */
+  public async getInternalTransactionsByHash(
+    txhash: string
+  ): Promise<BalanceResponse> {
+    const url = this.etherScan.constructUrl('account', 'txlistinternal', {
+      txhash,
+    });
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+  /**
+   * Get "Internal Transactions" by Block Range
+   * @param {number} options.startblock block number to start searching for transactions
+   * @param {number} options.endblock block number to stop searching for transactions
+   * @param {number} options.page page number, if pagination is enabled
+   * @param {number} options.offset the number of transactions displayed per page
+   * @param {string} options.sort the sorting preference, use `asc` to sort by ascending and `desc` to sort by descendin. Tip: Specify a smaller startblock and endblock range for faster search results.
+   * @returns Returns the list of internal transactions performed within a block range, with optional pagination.
+   */
+  public async getInternalTransactionsByBlockRange({
+    ...options
+  }: GetTransactionsByAddressOptions = {}): Promise<BalanceResponse> {
+    const url = this.etherScan.constructUrl('account', 'txlistinternal', {
       ...options,
     });
     const response = await fetch(url);
