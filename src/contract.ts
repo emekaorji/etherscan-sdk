@@ -1,20 +1,59 @@
 import { EtherScan } from './client';
 import { ABIResponse } from './types';
 
+export const enum Explorers {
+  Etherscan = 1,
+  GoerliEtherscan = 5,
+  SepoliaEtherscan = 11155111,
+  HoleskyEtherscan = 17000,
+  BscScan = 56,
+  TestnetBscScan = 97,
+  OpBNBBscScan = 204,
+  TestnetOpBNBBscScan = 5611,
+  FTMScan = 250,
+  TestnetFTMScan = 4002,
+  OptimisticEtherscan = 10,
+  GoerliOptimisticEtherscan = 420,
+  SepoliaOptimisticEtherscan = 11155420,
+  PolygonScan = 137,
+  Arbiscan = 42161,
+  SepoliaArbiscan = 421614,
+  MoonbeamMoonscan = 1284,
+  MoonbaseMoonscan = 1287,
+  MoonriverMoonscan = 1285,
+  BTTCScan = 199,
+  DonauBTTCScan = 1028,
+  CeloScan = 42220,
+  AlfajoresCeloScan = 44787,
+  GnosisScan = 100,
+  NovaArbiscan = 42170,
+  BaseScan = 8453,
+  SepoliaBaseScan = 84532,
+  ZkEVMPolygonScan = 1101,
+  LineaScan = 59144,
+  TestnetLineaScan = 59140,
+  ScrollScan = 534352,
+  TestnetScrollScan = 534351,
+  WemixScan = 1111,
+  TestnetWemixScan = 1112,
+  KromaScan = 255,
+  TestnetKromaScan = 2358,
+  Fraxscan = 252,
+  TestnetFraxscan = 2522,
+  SnowScan = 43114,
+  FujiSnowScan = 43113,
+  BlastScan = 81457,
+  TestnetBlastScan = 23888,
+}
+
 interface VerificationOptions {
-  chainId: string;
+  chainId: (typeof Explorers)[keyof typeof Explorers];
   codeformat: string;
   sourceCode: string;
   constructorArguements: string;
   contractname: string;
   contractaddress: string;
   compilerversion: string;
-}
-
-const enum ChainName {
-  'Etherscan' = 1,
-  'Goerli Etherscan' = 5,
-  'Sepolia Etherscan' = 11155111,
 }
 
 export class Contract {
@@ -91,8 +130,11 @@ export class Contract {
   ): Promise<ABIResponse> {
     const url = this.etherScan.constructUrl('contract', 'verifysourcecode', {});
 
+    const _options = Object.fromEntries(
+      Object.entries(options).map(([key, value]) => [key, String(value)])
+    );
     const params = new URLSearchParams({
-      ...options,
+      ..._options,
     }).toString();
 
     const response = await fetch(url, {
