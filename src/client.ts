@@ -1,4 +1,7 @@
 type Network = 'mainnet' | 'sepolia' | 'goerli';
+type Tag = 'earliest' | 'pending' | 'latest';
+type Sort = 'asc' | 'desc';
+type BlockType = 'blocks' | 'uncles';
 
 interface EtherScanConfig {
   apikey: string;
@@ -17,6 +20,27 @@ interface ABIResponse {
   result: string;
 }
 
+interface EtherscanParams {
+  address?: string;
+  tag?: Tag;
+  startblock?: number;
+  endblock?: number;
+  page?: number;
+  offset?: number;
+  sort?: Sort;
+  txhash?: string;
+  contractaddress?: string;
+  blocktype?: BlockType;
+  blockno?: number;
+}
+
+interface GetBalanceOptions extends Pick<EtherscanParams, 'tag'> {}
+interface GetNormalTransactionsOptions
+  extends Pick<
+    EtherscanParams,
+    'startblock' | 'endblock' | 'page' | 'offset' | 'sort'
+  > {}
+
 class Account {
   private etherScan: EtherScan;
 
@@ -24,8 +48,51 @@ class Account {
     this.etherScan = etherScan;
   }
 
-  public async getBalance(address: string): Promise<BalanceResponse> {
-    const url = this.etherScan.constructUrl('account', 'balance', { address });
+  public async getBalance(
+    address: string | string[],
+    { tag }: GetBalanceOptions = {}
+  ): Promise<BalanceResponse> {
+    let _address: string;
+    let action: string;
+
+    if (Array.isArray(address)) {
+      _address = address.join(',');
+      action = 'balancemulti';
+    } else {
+      _address = address;
+      action = 'balance';
+    }
+
+    const url = this.etherScan.constructUrl('account', action, {
+      address: _address,
+      tag,
+    });
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+  /**
+   * Get a list of 'Normal' Transactions By Address
+   * @param {string} address the addresses to check for balance
+   * @param {number} options.startblock block number to start searching for transactions
+   * @param {number} options.endblock block number to stop searching for transactions
+   * @param {number} options.page page number, if pagination is enabled
+   * @param {number} options.offset the number of transactions displayed per page
+   * @param {string} options.sort the sorting preference, use `asc` to sort by ascending and `desc` to sort by descendin. Tip: Specify a smaller startblock and endblock range for faster search results.
+   * @returns Returns the list of transactions performed by an address, with optional pagination.
+   */
+  public async getNormalTransactions(
+    address: string,
+    { ...options }: GetNormalTransactionsOptions = {}
+  ): Promise<BalanceResponse> {
+    const url = this.etherScan.constructUrl('account', 'txlist', {
+      address,
+      ...options,
+    });
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -90,15 +157,19 @@ export class EtherScan {
   constructUrl(
     module: string,
     action: string,
-    params: Record<string, string>
+    params: EtherscanParams
   ): string {
     const baseUrl = this.getBaseUrl();
+    const _params = Object.fromEntries(
+      Object.entries(params).map(([key, value]) => [key, String(value)])
+    );
     const queryParams = new URLSearchParams({
-      ...params,
+      ..._params,
       module,
       action,
       apikey: this.API_KEY,
     }).toString();
+
     return `${baseUrl}?${queryParams}`;
   }
 }
