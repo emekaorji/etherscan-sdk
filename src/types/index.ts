@@ -30,6 +30,7 @@ export interface EtherscanParams {
   sort?: Sort;
   txHash?: string;
   contractAddress?: string;
+  contractAddresses?: string;
   blockType?: BlockType;
   blockNo?: number;
 }

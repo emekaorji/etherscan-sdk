@@ -1,27 +1,6 @@
 import { Account } from './account';
-import {
-  ABIResponse,
-  EtherScanConfig,
-  EtherscanParams,
-  Network,
-} from './types';
-
-class Contract {
-  private etherScan: EtherScan;
-
-  constructor(etherScan: EtherScan) {
-    this.etherScan = etherScan;
-  }
-
-  public async getABI(address: string): Promise<ABIResponse> {
-    const url = this.etherScan.constructUrl('contract', 'getabi', { address });
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  }
-}
+import { Contract } from './contract';
+import { EtherScanConfig, EtherscanParams, Network } from './types';
 
 export class EtherScan {
   // Define Private variables
