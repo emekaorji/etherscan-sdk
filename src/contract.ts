@@ -1,60 +1,9 @@
 import { EtherScan } from './client';
-import { ABIResponse } from './types';
-
-export const enum Explorers {
-  Etherscan = 1,
-  GoerliEtherscan = 5,
-  SepoliaEtherscan = 11155111,
-  HoleskyEtherscan = 17000,
-  BscScan = 56,
-  TestnetBscScan = 97,
-  OpBNBBscScan = 204,
-  TestnetOpBNBBscScan = 5611,
-  FTMScan = 250,
-  TestnetFTMScan = 4002,
-  OptimisticEtherscan = 10,
-  GoerliOptimisticEtherscan = 420,
-  SepoliaOptimisticEtherscan = 11155420,
-  PolygonScan = 137,
-  Arbiscan = 42161,
-  SepoliaArbiscan = 421614,
-  MoonbeamMoonscan = 1284,
-  MoonbaseMoonscan = 1287,
-  MoonriverMoonscan = 1285,
-  BTTCScan = 199,
-  DonauBTTCScan = 1028,
-  CeloScan = 42220,
-  AlfajoresCeloScan = 44787,
-  GnosisScan = 100,
-  NovaArbiscan = 42170,
-  BaseScan = 8453,
-  SepoliaBaseScan = 84532,
-  ZkEVMPolygonScan = 1101,
-  LineaScan = 59144,
-  TestnetLineaScan = 59140,
-  ScrollScan = 534352,
-  TestnetScrollScan = 534351,
-  WemixScan = 1111,
-  TestnetWemixScan = 1112,
-  KromaScan = 255,
-  TestnetKromaScan = 2358,
-  Fraxscan = 252,
-  TestnetFraxscan = 2522,
-  SnowScan = 43114,
-  FujiSnowScan = 43113,
-  BlastScan = 81457,
-  TestnetBlastScan = 23888,
-}
-
-interface VerificationOptions {
-  chainId: (typeof Explorers)[keyof typeof Explorers];
-  codeformat: string;
-  sourceCode: string;
-  constructorArguements: string;
-  contractname: string;
-  contractaddress: string;
-  compilerversion: string;
-}
+import {
+  ABIResponse,
+  VerificationOptionsProxy,
+  VerificationOptionsSourceCode,
+} from './types';
 
 export class Contract {
   private etherScan: EtherScan;
@@ -115,23 +64,26 @@ export class Contract {
   }
 
   /**
-   * Verify Source Code
-   * @param {string} options.chainId the chain to submit verification, such as `1` for mainnet
+   * Submits a contract source code to an Etherscan-like explorer for verification.
+   * @param {string} options.chainId the chain to submit verification, such as `1` for mainnet. See {@link https://docs.etherscan.io/contract-verification/supported-chains} for a list of supported chain IDs
    * @param {string} options.codeformat for single file, use `solidity-single-file`. for JSON file ( recommended ), use `solidity-standard-json-input`
    * @param {string} options.sourceCode the Solidity source code
    * @param {string} options.constructorArguements optional, include if your contract uses constructor arguments
-   * @param {string} options.contractname the name of your contract, such as `contracts/Verified.sol:Verified`
-   * @param {string} options.contractaddress the address your contract is deployed at
-   * @param {string} options.compilerversion compiler version used, such as `v0.8.24+commit.e11b9ed9`
-   * @returns Submits a contract source code to an Etherscan-like explorer for verification.
+   * @param {string} options.contractName the name of your contract, such as `contracts/Verified.sol:Verified`
+   * @param {string} options.contractAddress the address your contract is deployed at
+   * @param {string} options.compilerVersion compiler version used, such as `v0.8.26+commit.8a97fa7a`. See {@link https://etherscan.io/solcversions} for more versions
+   * @returns a 50-character string `GUID` that serves as a receipt of successful submission
    */
   public async verifySourceCode(
-    options: VerificationOptions
+    options: VerificationOptionsSourceCode
   ): Promise<ABIResponse> {
     const url = this.etherScan.constructUrl('contract', 'verifysourcecode', {});
 
     const _options = Object.fromEntries(
-      Object.entries(options).map(([key, value]) => [key, String(value)])
+      Object.entries(options).map(([key, value]) => [
+        key.toLowerCase(),
+        String(value),
+      ])
     );
     const params = new URLSearchParams({
       ..._options,
@@ -145,6 +97,58 @@ export class Contract {
       body: params,
     });
 
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+  /**
+   * Submits a proxy contract to an Etherscan-like explorer for verification.
+   * @param {string} options.contractAddress the address your contract is deployed at
+   * @param {string} options.expectedImplementation compiler version used, such as `v0.8.26+commit.8a97fa7a`. See {@link https://etherscan.io/solcversions} for more versions
+   * @returns a 50-character string `GUID` that serves as a receipt of successful submission
+   */
+  public async verifyProxyContract(
+    options: VerificationOptionsProxy
+  ): Promise<ABIResponse> {
+    const url = this.etherScan.constructUrl(
+      'contract',
+      'verifyproxycontract',
+      {}
+    );
+
+    const _options = Object.fromEntries(
+      Object.entries(options).map(([key, value]) => [key.toLowerCase(), value])
+    );
+    const params = new URLSearchParams({
+      ..._options,
+    }).toString();
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params,
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+  /**
+   * Check Source Code Verification Status
+   * @param {string} guid the unique `guid` received from the verification request
+   * @returns Returns the success or error status of a contract verification request.
+   */
+  public async checkVerificationStatus(guid: string): Promise<ABIResponse> {
+    const url = this.etherScan.constructUrl('contract', 'checkverifystatus', {
+      guid,
+    });
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }

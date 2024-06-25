@@ -59,7 +59,7 @@ export class Account {
    */
   public async getNormalTransactions(
     address: string,
-    { ...options }: TransactionOptions = {}
+    options: TransactionOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'txlist', {
       address,
@@ -84,7 +84,7 @@ export class Account {
    */
   public async getInternalTransactions(
     address: string,
-    { ...options }: TransactionOptions = {}
+    options: TransactionOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'txlistinternal', {
       address,
@@ -124,9 +124,9 @@ export class Account {
    * @param {string} options.sort the sorting preference, use `asc` to sort by ascending and `desc` to sort by descendin. Tip: Specify a smaller startBlock and endBlock range for faster search results.
    * @returns Returns the list of internal transactions performed within a block range, with optional pagination.
    */
-  public async getInternalTransactionsByBlockRange({
-    ...options
-  }: TransactionOptions = {}): Promise<BalanceResponse> {
+  public async getInternalTransactionsByBlockRange(
+    options: TransactionOptions = {}
+  ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'txlistinternal', {
       ...options,
     });
@@ -151,7 +151,7 @@ export class Account {
   public async getERC20TokenEvents(
     address: string,
     contractAddress: string,
-    { ...options }: TransactionOptions = {}
+    options: TransactionOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'tokentx', {
       address,
@@ -179,7 +179,7 @@ export class Account {
   public async getERC721TokenEvents(
     address: string,
     contractAddress: string,
-    { ...options }: TransactionOptions = {}
+    options: TransactionOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'tokennfttx', {
       address,
@@ -207,7 +207,7 @@ export class Account {
   public async getERC1155TokenEvents(
     address: string,
     contractAddress: string,
-    { ...options }: TransactionOptions = {}
+    options: TransactionOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'token1155tx', {
       address,
@@ -232,7 +232,7 @@ export class Account {
   public async getValidatedBlocks(
     address: string,
     blockType: BlockType,
-    { ...options }: BlockValidationOptions = {}
+    options: BlockValidationOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'getminedblocks', {
       address,
@@ -258,7 +258,7 @@ export class Account {
    */
   public async getBeaconChainWithdrawals(
     address: string,
-    { ...options }: TransactionOptions = {}
+    options: TransactionOptions = {}
   ): Promise<BalanceResponse> {
     const url = this.etherScan.constructUrl('account', 'txsBeaconWithdrawal', {
       address,

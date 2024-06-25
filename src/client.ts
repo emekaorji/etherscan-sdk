@@ -45,7 +45,10 @@ export class EtherScan {
   ): string {
     const baseUrl = this.getBaseUrl();
     const _params = Object.fromEntries(
-      Object.entries(params).map(([key, value]) => [key, String(value)])
+      Object.entries(params).map(([key, value]) => [
+        key.toLowerCase(),
+        String(value),
+      ])
     );
     const queryParams = new URLSearchParams({
       ..._params,
