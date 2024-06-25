@@ -3,6 +3,7 @@ export type Tag = 'earliest' | 'pending' | 'latest';
 export type Sort = 'asc' | 'desc';
 export type BlockType = 'blocks' | 'uncles';
 export type Closest = 'before' | 'after';
+export type TopicOperator = 'and' | 'or';
 
 export interface EtherScanConfig {
   apikey: string;
@@ -16,6 +17,12 @@ export interface BalanceResponse {
 }
 
 export interface ABIResponse {
+  status: string;
+  message: string;
+  result: string;
+}
+
+export interface LogResponse {
   status: string;
   message: string;
   result: string;
@@ -39,6 +46,18 @@ export interface EtherscanParams {
   closest?: Closest;
   startDate?: string;
   endDate?: string;
+  fromBlock?: number;
+  toBlock?: number;
+  topic0?: string;
+  topic1?: string;
+  topic2?: string;
+  topic3?: string;
+  topic0_1_opr?: TopicOperator;
+  topic1_2_opr?: TopicOperator;
+  topic2_3_opr?: TopicOperator;
+  topic0_2_opr?: TopicOperator;
+  topic0_3_opr?: TopicOperator;
+  topic1_3_opr?: TopicOperator;
 }
 
 export interface GetBalanceOptions extends Pick<EtherscanParams, 'tag'> {}
@@ -48,6 +67,27 @@ export interface TransactionOptions
   extends Pick<
     EtherscanParams,
     'startBlock' | 'endBlock' | 'page' | 'offset' | 'sort'
+  > {}
+
+export interface LogOptionsAddress
+  extends Pick<EtherscanParams, 'fromBlock' | 'toBlock' | 'page' | 'offset'> {}
+export interface LogOptionsAddressAndTopics
+  extends Pick<
+    EtherscanParams,
+    | 'fromBlock'
+    | 'toBlock'
+    | 'page'
+    | 'offset'
+    | 'topic0'
+    | 'topic1'
+    | 'topic2'
+    | 'topic3'
+    | 'topic0_1_opr'
+    | 'topic1_2_opr'
+    | 'topic2_3_opr'
+    | 'topic0_2_opr'
+    | 'topic0_3_opr'
+    | 'topic1_3_opr'
   > {}
 
 type CompilerVersions =

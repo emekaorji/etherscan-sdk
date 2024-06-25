@@ -43,10 +43,11 @@ export class EtherScan {
     action: string,
     params: EtherscanParams
   ): string {
+    const uppercaseKeys = ['fromBlock', 'toBlock'];
     const baseUrl = this.getBaseUrl();
     const _params = Object.fromEntries(
       Object.entries(params).map(([key, value]) => [
-        key.toLowerCase(),
+        uppercaseKeys.includes(key) ? key : key.toLowerCase(),
         String(value),
       ])
     );

@@ -27,7 +27,7 @@ export class Contract {
   /**
    * Check Transaction Receipt Status
    *
-   * Only applicable for post Byzantium Fork transactions.
+   * **Only applicable for post Byzantium Fork transactions.**
    *
    * @param {string} txHash the transaction hash to check the execution status
    * @returns Returns the status code of a transaction execution.
